@@ -1,0 +1,31 @@
+cpad库windows下安装，和示例的运行
+
+一、【安装】
+按照官网安装步骤http://capd.sourceforge.net/capdDynSys/docs/html/capd_requirements.html
+其中几处需要注意
+   (1)测试gcc-v时，需先将mingw的bin路径添加中到系统变量Path中才能测试成功，（我的安装路径是D:\MyDownloads\mingw\bin）
+   (2)编译bootstrap时，官网提供bootstarp.bat mingw命令提示mingw找不到，可以采用bootstrap.bat gcc
+   (3)最后一步复制编译好bootstrap包到mingw路径include下时，注意window下路径写法（如/d/boost指d盘下boost文件夹）。复制boost文件夹时出现can not create hard link,后来运行发现并不影响，可先忽视
+
+二、【头文件路径】
+运行example,可能出现no such file提示找不到文件
+  解决一：需将capd库提供的头文件（在capd文件夹下）添加到c++编译器头文件文件搜索路径下
+   （#include "a.h"格式，先搜当前目录，再-I指定目录下，再变量CPLUS_INCLUDE_PATH下，再编译器本身设定目录下
+     #include <a.h>格式，先搜-I指定目录下，再变量CPLUS_INCLUDE_PATH下，再编译器本身设定目录）
+  解决二，将capd库提供的头文件全都改成相对路径（不推荐）
+
+三、【运行】
+(1)通过官方脚本运行
+    需将脚本（库的bin文件下，我是D:\MyDownloads\mingw\msys\1.0\local\bin）添加到path中，
+    因为官方脚本在/usr/local写的，所以将库local文件夹复制到usr下方便些（不然需修改.pc配置文件中prefix=/usr/local路径及文件下的所有/usr/local），方法：在msys.bat命令cp -r local文件夹位置 /usr/ 或手动烤贝，将local烤到msys/1.0(我的是D:\MyDownloads\mingw\msys\1.0)下，
+    在msys.bat运行命令：g++ -O2 MyProgram.cpp -o MyProgram `capd-config --cflags --libs` -std=c++11 -march=i686(说明：-std指定编译标准，-march指定按x86架构32位编译)
+(2)不依赖脚本运行
+   在msys.bat中运行命令：g++ -O2 -D__USE_FILIB__ -frounding-math -I/d/MyDownloads/mingw/msys/1.0/local/include/capd -L/d/MyDownloads/mingw/msys/1.0/local/lib MyProgram.cpp -o MyProgram -lcapd -lprim(说明：-I头文件位置，-L库位置)
+
+
+(最后注意：
+a.需用gcc4.8及以上版本，我默认安装的4.9
+b.运行命令中`capd-config --cflags --libs`引号是键盘Esc下面那个引号
+c.自己新建main.cpp可放于任意位置，但是确保main.cpp中的#include
+"/d/MyDownloads/mingw/msys/1.0/local/include/capdcapdlib.h"，能够找到capd文件夹下的capdlib.h,采用相对路径方便些
+d.最终运行出现ld.exe not found --llog4ccx等提示指定参数找不到，若是用脚本运行在对应.pc中删除未找到参数，若是未用脚本就直接不指定参数)
